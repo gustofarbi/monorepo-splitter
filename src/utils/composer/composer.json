@@ -1,0 +1,217 @@
+{
+    "name": "mp/myposter",
+    "description": "Myposter shop",
+    "homepage": "https://www.myposter.de",
+    "type": "project",
+
+    "config": {
+        "preferred-install": {
+            "tecnickcom/tcpdf": "source",
+            "*": "dist"
+        },
+        "process-timeout": 900,
+        "sort-packages": true
+    },
+    "scripts": {
+        "pre-command-run": "Mylib\\ComposerCallBack::preCommandRun",
+        "auto-scripts": {
+            "cache:clear": "symfony-cmd",
+            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+        },
+        "deptrac": "deptrac analyze --cache-file=var/cache/.deptrac.cache ./build/depfile.yml",
+        "lint": "parallel-lint --exclude vendor --exclude .idea -e php ./",
+        "packages-deps": [
+            "@packages-deps-missing",
+            "@packages-deps-unused"
+        ],
+        "packages-deps-missing": "./build/packages/for-every-dir.sh packages ../../vendor/bin/composer-require-checker check",
+        "packages-deps-unused": "./build/packages/for-every-dir.sh packages ../../vendor/bin/composer-unused unused --excludePackage=php",
+        "packages-dev-deps-missing": "./build/packages/for-every-dir.sh packages-dev ../../vendor/bin/composer-require-checker check",
+        "packages-dev-deps-unused": "./build/packages/for-every-dir.sh packages-dev ../../vendor/bin/composer-unused unused --excludePackage=php",
+        "phpcs": [
+            "@phpcs-packages",
+            "@phpcs-phtml",
+            "@phpcs-src",
+            "@phpcs-tests",
+            "@phpcs-web-application",
+            "@phpcs-web-codeception",
+            "@phpcs-web-library",
+            "@phpcs-web-tests"
+        ],
+        "phpcs-packages": "phpcs --standard=./build/phpcs_packages.xml",
+        "phpcs-phtml": "phpcs --standard=./build/phpcs_phtml.xml",
+        "phpcs-src": "phpcs --standard=./build/phpcs_src.xml",
+        "phpcs-tests": "phpcs --standard=./build/phpcs_tests.xml",
+        "phpcs-web-application": "phpcs --standard=./build/phpcs_web_application.xml",
+        "phpcs-web-codeception": "phpcs --standard=./build/phpcs_web_codeception.xml",
+        "phpcs-web-library": "phpcs --standard=./build/phpcs_web_library.xml",
+        "phpcs-web-tests": "phpcs --standard=./build/phpcs_web_tests.xml",
+        "phpcbf": [
+            "@phpcbf-packages",
+            "@phpcbf-phtml",
+            "@phpcbf-src",
+            "@phpcbf-tests",
+            "@phpcbf-web-application",
+            "@phpcbf-web-codeception",
+            "@phpcbf-web-library",
+            "@phpcbf-web-tests"
+        ],
+        "phpcbf-packages": "phpcbf --standard=./build/phpcs_packages.xml; [ $? -le 1 ]",
+        "phpcbf-phtml": "phpcbf --standard=./build/phpcs_phtml.xml; [ $? -le 1 ]",
+        "phpcbf-src": "phpcbf --standard=./build/phpcs_src.xml; [ $? -le 1 ]",
+        "phpcbf-tests": "phpcbf --standard=./build/phpcs_tests.xml; [ $? -le 1 ]",
+        "phpcbf-web-application": "phpcbf --standard=./build/phpcs_web_application.xml; [ $? -le 1 ]",
+        "phpcbf-web-codeception": "phpcbf --standard=./build/phpcs_web_codeception.xml; [ $? -le 1 ]",
+        "phpcbf-web-library": "phpcbf --standard=./build/phpcs_web_library.xml; [ $? -le 1 ]",
+        "phpcbf-web-tests": "phpcbf --standard=./build/phpcs_web_tests.xml; [ $? -le 1 ]",
+        "phpunit-packages": "./build/packages/phpunit.sh",
+        "phpunit-packages-coverage": [
+            "./build/packages/phpunit-coverage.sh ./build/logs",
+            "@php ./bin/generateCombinedCodeCoverageReport.php ./build/logs/php-unit-packages-coverage ./build/logs/php-unit-packages-*-coverage.php"
+        ]
+    },
+    "autoload": {
+        "classmap": [
+            "./vendor/datadog/dd-trace/src/DDTrace",
+            "./vendor/diablomedia/zendframework1-application/src/"
+        ],
+        "files": [
+            "src/Zend_Validate_File_Count.php"
+        ],
+        "psr-4": {
+            "AccessoryModule\\": "web/application/Module/AccessoryModule",
+            "AdminModule\\": "web/application/Module/AdminModule",
+            "ApiModule\\": "web/application/Module/ApiModule",
+            "AppApiModule\\": "web/application/Module/AppApiModule",
+            "AppMyposter\\": "src/",
+            "BarModule\\": "web/application/Module/BarModule",
+            "CmsModule\\": "web/application/Module/CmsModule",
+            "CustomerModule\\": "web/application/Module/CustomerModule",
+            "DashboardModule\\": "web/application/Module/DashboardModule",
+            "DefaultModule\\": "web/application/Module/DefaultModule",
+            "DesignerAdminModule\\": "web/application/Module/DesignerAdminModule",
+            "DesktopApiModule\\": "web/application/Module/DesktopApiModule",
+            "FeedModule\\": "web/application/Module/FeedModule",
+            "MedialibModule\\": "web/application/Module/MedialibModule",
+            "Mylib\\": "web/library/Mylib",
+            "Myposter\\": "web/application",
+            "Myposter\\Canvas\\": "packages/canvas/src/",
+            "Myposter\\Enum\\": [
+                "packages/enum/src/",
+                "packages/enums/src/"
+            ],
+            "Myposter\\Exception\\": "packages/exception/src/",
+            "Myposter\\Helper\\": "packages/helper/src/",
+            "Myposter\\ShippingPriceRulesFile\\": "packages/shipping-price-rules-file/src/",
+            "Myposter\\ShippingPrice\\": "packages/shipping-price/src/",
+            "Myposter\\Spreadsheet\\": "packages/spreadsheet/src/",
+            "Myposter\\Storage\\": "packages/storage/src/",
+            "Myposter\\ValueObject\\": [
+                "packages/value-object/src/",
+                "packages/value-objects/src/"
+            ],
+            "OrderModule\\": "web/application/Module/OrderModule",
+            "PhotobookModule\\": "web/application/Module/PhotobookModule",
+            "ShopProductionApiModule\\": "web/application/Module/ShopProductionApiModule",
+            "StockImageModule\\": "web/application/Module/StockImageModule",
+            "SupportModule\\": "web/application/Module/SupportModule",
+            "TicketingApiModule\\": "web/application/Module/TicketingApiModule",
+            "WebApiModule\\": "web/application/Module/WebApiModule"
+        }
+    },
+    "autoload-dev": {
+        "classmap": [
+            "packages-dev/*/src/*",
+            "packages/*/src/*",
+            "packages/*/tests/*"
+        ],
+        "psr-4": {
+            "AppMyposter\\Tests\\": "tests/",
+            "Myposter\\Canvas\\Tests\\": "packages/canvas/tests/",
+            "Myposter\\Enum\\Tests\\": [
+                "packages/enum/tests/",
+                "packages/enums/tests/"
+            ],
+            "Myposter\\Exception\\Tests\\": "packages/exception/tests/",
+            "Myposter\\Helper\\Tests\\": "packages/helper/tests/",
+            "Myposter\\ShippingPrice\\Tests\\": "packages/shipping-price/tests/",
+            "Myposter\\Spreadsheet\\Tests\\": "packages/spreadsheet/tests/",
+            "Myposter\\Storage\\Tests\\": "packages/storage/tests/",
+            "Myposter\\ValueObject\\Tests\\": [
+                "packages/value-object/tests/",
+                "packages/value-objects/tests/"
+            ],
+            "Test\\": "web/tests",
+            "UnitTest\\Mylib\\": "web/tests/Unit/library/Mylib"
+        }
+    },
+    "require": {
+        "php": "~7.4.0",
+        "symfony/web-link": "4.4.20",
+        "symfony/yaml": "4.4.20",
+        "tecnickcom/tcpdf": "6.3.5",
+        "whichbrowser/parser": "2.1.1"
+    },
+    "require-dev": {
+        "symfony/debug-pack": "1.0.9",
+        "symfony/maker-bundle": "1.30.0",
+        "symfony/phpunit-bridge": "5.2.4",
+        "symfony/profiler-pack": "1.0.5",
+        "symplify/monorepo-builder": "^9.3"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../*"
+        },
+        {
+            "type": "path",
+            "url": "./packages-dev/*"
+        },
+        {
+            "type": "path",
+            "url": "./packages/*"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/mkuh/zend-form-decorators-bootstrap.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/mridgway/ZendX_Doctrine2.git"
+        },
+        {
+            "type": "vcs",
+            "url": "ssh://git@bitbucket.myposter.de/mp/spl.git"
+        },
+        {
+            "type": "vcs",
+            "url": "ssh://git@bitbucket.myposter.de/mp/supervisor-configuration.git"
+        }
+    ],
+    "replace": {
+        "symfony/polyfill-ctype": "*",
+        "symfony/polyfill-iconv": "*",
+        "symfony/polyfill-php56": "*",
+        "symfony/polyfill-php70": "*",
+        "symfony/polyfill-php71": "*"
+    },
+    "extra": {
+        "unused": [
+            "myposter/enum",
+            "myposter/value-object"
+        ],
+        "composer-exit-on-patch-failure": true,
+        "patches": {
+            "tecnickcom/tcpdf": {
+                "check if file_exists before unlink": "https://patch-diff.githubusercontent.com/raw/tecnickcom/TCPDF/pull/327.patch"
+            }
+        },
+        "symfony": {
+            "allow-contrib": false,
+            "require": "4.4.20"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

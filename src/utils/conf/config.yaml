@@ -1,0 +1,21 @@
+version: 1.5.3
+root:
+  branch: master
+  remote: origin
+  path: ~/workspace/split-demo
+packages:
+  prefix: packages
+  branch: master
+  items:
+    - remote: foo
+      url: https://github.com/gustofarbi/foo.git
+      path: fooo
+    - remote: bar
+      url: https://github.com/gustofarbi/bar.git
+    - remote: package1
+      url: https://github.com/gustofarbi/package1.git
+    - remote: first-package
+      url: https://github.com/gustofarbi/first-package.git
+    - remote: second-package
+      url: https://github.com/gustofarbi/second-package.git
+
