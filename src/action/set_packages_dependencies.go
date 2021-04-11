@@ -2,7 +2,7 @@ package action
 
 import (
 	"log"
-	"splitter/utils/pkg"
+	"splitter/pkg"
 )
 
 type SetPackagesDependencies struct{}
@@ -24,4 +24,8 @@ func (s SetPackagesDependencies) Act(collection *pkg.PackageCollection) {
 
 func (s SetPackagesDependencies) Description() string {
 	return "set versions of mutual dependencies to current version"
+}
+
+func (s SetPackagesDependencies) String() string {
+return "set-packages-dependencies"
 }

@@ -9,7 +9,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"splitter/utils/pkg"
+	"splitter/pkg"
 )
 
 type SplitPackages struct{}
@@ -80,7 +80,7 @@ func (s SplitPackages) Act(collection *pkg.PackageCollection) {
 		po := &git.PushOptions{
 			RemoteName: singlePkg.RemoteName,
 			RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
-			Auth:       collection.Auth,
+			Auth:       collection.Conf.AuthMethod,
 		}
 		err = repo.Push(po)
 		if err != nil {
@@ -91,4 +91,8 @@ func (s SplitPackages) Act(collection *pkg.PackageCollection) {
 
 func (s SplitPackages) Description() string {
 	return "split packages into separate repositories and push the changes to their remotes"
+}
+
+func (s SplitPackages) String() string {
+	return "split-packages"
 }

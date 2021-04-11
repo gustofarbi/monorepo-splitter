@@ -1,11 +1,12 @@
 package action
 
 import (
-	"splitter/utils/pkg"
+	"fmt"
+	"splitter/pkg"
 )
 
 type Action interface {
 	Act(collection *pkg.PackageCollection)
 	Description() string
-	//HandleFunc() func(singlePackage *pkg.Package)
+	fmt.Stringer
 }

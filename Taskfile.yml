@@ -1,0 +1,30 @@
+version: '3'
+
+vars:
+  tag: splitter
+  mac_bin: bin/splitter-mac
+tasks:
+  test:
+    dir: src
+    cmds:
+      - go test ./...
+  build-mac:
+    dir: src
+    cmds:
+      - GOOS=darwin GOARCH=amd64 go build -o ../{{.mac_bin}} main.go
+  install:
+    deps:
+      - build-mac
+    cmds:
+      - mv {{.mac_bin}} /usr/local/bin/splitter
+
+#todo this does not work yet: we need to install libgit2 1.1.0 in docker image
+#  build-linux:
+#    dir: src
+#    cmds:
+#      - GOOS=linux GOARCH=amd64 go build -o ../bin/splitter-linux main.go
+#  build-docker:
+#    deps:
+#      - build-linux
+#    cmds:
+#      - docker build . -t={{.tag}}

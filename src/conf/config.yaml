@@ -18,4 +18,9 @@ packages:
       url: https://github.com/gustofarbi/first-package.git
     - remote: second-package
       url: https://github.com/gustofarbi/second-package.git
-
+actions:
+  - validate
+  - set-packages-dependencies
+  - write-changes
+  - tag-release
+  - split-packages

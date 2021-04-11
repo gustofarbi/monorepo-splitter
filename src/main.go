@@ -9,16 +9,23 @@ import (
 	"log"
 	"os"
 	"splitter/action"
-	"splitter/utils/conf"
-	"splitter/utils/pkg"
+	"splitter/conf"
+	"splitter/pkg"
 )
 
 var (
-	config = flag.String("conf", "", "conf file to use")
+	config = flag.String("c", "", "configfile to use")
 )
 
 func main() {
-	var username, password string
+	flag.Parse()
+	collection := loadCollection()
+	pipeline := action.NewPipeline(collection.Conf.Actions)
+	pipeline.Run(collection)
+}
+
+func loadAuth() http.AuthMethod {
+	var username string
 	fmt.Printf("enter git credentials\nusername: ")
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
@@ -30,23 +37,19 @@ func main() {
 	if err != nil {
 		log.Fatalln("error reading password: ", err)
 	}
-	password = string(b)
-	auth := &http.BasicAuth{
+	fmt.Println()
+	return &http.BasicAuth{
 		Username: username,
-		Password: password,
+		Password: string(b),
 	}
-	cnf, err := conf.LoadConfig(*config)
+}
+
+func loadCollection() *pkg.PackageCollection {
+	cnf, err := conf.LoadConfig(*config, loadAuth)
 	checkError(err)
-	collection, err := pkg.FromConfig(cnf, auth)
+	collection, err := pkg.FromConfig(cnf)
 	checkError(err)
-	pipeline := action.NewPipeline(
-		//action.UpdateReplaceRelease{},
-		action.SetPackagesDependencies{},
-		action.WriteChanges{},
-		action.TagRelease{},
-		action.SplitPackages{},
-	)
-	pipeline.Act(collection)
+	return collection
 }
 
 func checkError(e error) {

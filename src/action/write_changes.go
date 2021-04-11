@@ -3,7 +3,7 @@ package action
 import (
 	"log"
 	"path/filepath"
-	"splitter/utils/pkg"
+	"splitter/pkg"
 )
 
 type WriteChanges struct{}
@@ -23,4 +23,8 @@ func (w WriteChanges) Act(collection *pkg.PackageCollection) {
 
 func (w WriteChanges) Description() string {
 	return "write changes made to composer.jsons"
+}
+
+func (w WriteChanges) String() string {
+	return "write-changes"
 }

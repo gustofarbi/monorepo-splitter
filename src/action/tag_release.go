@@ -5,7 +5,7 @@ import (
 	"github.com/go-git/go-git/v5/config"
 	"log"
 	"os"
-	"splitter/utils/pkg"
+	"splitter/pkg"
 )
 
 type TagRelease struct{}
@@ -43,27 +43,18 @@ func (t TagRelease) Act(collection *pkg.PackageCollection) {
 	po := &git.PushOptions{
 		RemoteName: collection.RootPackage.RemoteName,
 		RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
-		Auth:       collection.Auth,
+		Auth:       collection.Conf.AuthMethod,
 	}
 	err = collection.RootPackage.Repo.Push(po)
 	if err != nil {
 		log.Fatalln("cannot push tags into root repo", err)
 	}
-	return
-	//cmd := exec.Command(
-	//	"git",
-	//	"push",
-	//	"--tags",
-	//	"origin",
-	//	head.Target().String(),
-	//)
-	//err = cmd.Run()
-	//if err != nil {
-	//	output, _ := cmd.CombinedOutput()
-	//	log.Fatalf("cannot push to remote:\n%s\n%s", err, string(output))
-	//}
 }
 
 func (t TagRelease) Description() string {
 	return "add to git, commit changes and tag the new release"
+}
+
+func (t TagRelease) String() string {
+	return "tag-release"
 }
