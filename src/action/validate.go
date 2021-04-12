@@ -17,12 +17,16 @@ type Validate struct{}
 
 func (v Validate) Act(collection *pkg.PackageCollection) {
 	validateRootPackage(collection)
+	if collection.Conf.PackageAuth == nil {
+		collection.Conf.PackageAuth = collection.Conf.PackageAuthFunc()
+	}
 	for _, singlePackage := range collection.Packages {
 		validateSinglePackage(
 			singlePackage.Repo,
 			singlePackage.RemoteName,
 			singlePackage.RemoteUrl,
 			collection.Conf.Semver,
+			collection.Conf.PackageAuth,
 		)
 	}
 }
@@ -59,7 +63,11 @@ func validateRootPackage(collection *pkg.PackageCollection) {
 	}
 }
 
-func validateSinglePackage(repo *git.Repository, remote, url string, newVersion version.Semver) {
+func validateSinglePackage(
+	repo *git.Repository,
+	remote, url string,
+	newVersion version.Semver,
+	auth transport.AuthMethod) {
 	_, err := repo.CreateRemote(&config.RemoteConfig{
 		Name: remote,
 		URLs: []string{url},
@@ -68,7 +76,7 @@ func validateSinglePackage(repo *git.Repository, remote, url string, newVersion 
 		log.Fatalf("error creating remote %s %s: %+v", remote, url, err)
 	}
 
-	err = repo.Fetch(&git.FetchOptions{RemoteName: remote})
+	err = repo.Fetch(&git.FetchOptions{RemoteName: remote, Auth: auth})
 	if err != nil && err != transport.ErrEmptyRemoteRepository {
 		log.Fatalf("error fetching remote %s: %+v", remote, err)
 	}

@@ -64,12 +64,17 @@ func (s SplitPackages) Act(collection *pkg.PackageCollection) {
 		cmd.Stdout = os.Stdout
 		err = cmd.Run()
 		if err != nil {
-			b, _ := cmd.Output()
-			log.Fatalf("pushing splitted changes to remote failed on %s: %s", singlePkg.RemoteName, string(b))
+			panic(err)
 		}
 		err = repo.Fetch(&git.FetchOptions{
 			RemoteName: singlePkg.RemoteName,
+			Force:      true,
+			Progress:   os.Stdout,
+			Auth:       collection.Conf.PackageAuth,
 		})
+		if err != nil {
+			panic(err)
+		}
 		t, err := repo.Object(plumbing.AnyObject, plumbing.NewHash(result.Head().String()))
 		if err != nil {
 			panic(err)
