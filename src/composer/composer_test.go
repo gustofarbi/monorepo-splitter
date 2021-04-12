@@ -23,6 +23,9 @@ func TestComposer_LoadComposer(t *testing.T) {
 	if c.Items.Name != "mp/myposter" {
 		t.Fatal("wrong pkg name")
 	}
+	if len(c.Items.Config) != 3 {
+		t.Fatal("wrong number of configs")
+	}
 }
 
 func TestComposer_WriteToFile(t *testing.T) {

@@ -1,0 +1,27 @@
+version: 0.0.7
+root:
+  branch: feature/canvas-renderer/develop
+  path: ~/mp/myposter
+  remote: origin
+packages:
+  prefix: packages
+  branch: master
+  items:
+    - remote: canvas
+      url: /Users/matej.karolcik/workspace/repos/canvas.git
+    - remote: enum
+      url: /Users/matej.karolcik/workspace/repos/enum.git
+    - remote: helper
+      url: /Users/matej.karolcik/workspace/repos/helper.git
+    - remote: value-objects
+      url: /Users/matej.karolcik/workspace/repos/value-objects.git
+    - remote: value-object
+      url: /Users/matej.karolcik/workspace/repos/value-object.git
+actions:
+  - validate
+  - set-packages-dependencies
+  - update-configs
+  - write-changes
+  - push-changes
+  - split-packages
+  - reset

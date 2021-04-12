@@ -1,11 +1,14 @@
 package action
 
 import (
+	"bytes"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"log"
+	"os"
+	"os/exec"
 	"splitter/pkg"
 	"splitter/version"
 )
@@ -13,7 +16,7 @@ import (
 type Validate struct{}
 
 func (v Validate) Act(collection *pkg.PackageCollection) {
-	validateRootPackage(collection.RootPackage.Repo, collection.Conf.Root.Branch)
+	validateRootPackage(collection)
 	for _, singlePackage := range collection.Packages {
 		validateSinglePackage(
 			singlePackage.Repo,
@@ -28,20 +31,31 @@ func (v Validate) Description() string {
 	return "validate configuration"
 }
 
-func validateRootPackage(repo *git.Repository, branch string) {
-	workTree, err := repo.Worktree()
+func validateRootPackage(collection *pkg.PackageCollection) {
+	err := os.Chdir(collection.RootPackage.Path)
 	if err != nil {
-		log.Fatalf("error obtaining worktree: %+v", err)
+		log.Fatalf("cannot change dir: %+v", err)
 	}
-	err = workTree.Checkout(&git.CheckoutOptions{
-		Branch: plumbing.ReferenceName("refs/heads/" + branch),
-	})
+	cmd := exec.Command("git", "status", "--porcelain")
+	buf := bytes.Buffer{}
+	cmd.Stdout = &buf
+	cmd.Stderr = os.Stderr
+	err = cmd.Run()
 	if err != nil {
-		log.Fatalf("error checking out root repo: %+v", err)
+		log.Fatalf("cannot get repo status: %+v", err)
 	}
-	err = workTree.Pull(&git.PullOptions{RemoteName: "origin"})
-	if err != nil && err != git.NoErrAlreadyUpToDate {
-		log.Fatalf("error pulling: %+v", err)
+	if buf.String() != "" {
+		panic("root repo contains unstaged changes")
+	}
+	cmd = exec.Command("git", "checkout", collection.Conf.Root.Branch)
+	err = cmd.Run()
+	if err != nil {
+		panic(err)
+	}
+	cmd = exec.Command("git", "pull")
+	err = cmd.Run()
+	if err != nil {
+		panic(err)
 	}
 }
 

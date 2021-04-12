@@ -3,6 +3,7 @@ package action
 import (
 	"log"
 	"splitter/pkg"
+	"strings"
 )
 
 type SetPackagesDependencies struct{}
@@ -15,8 +16,10 @@ func (s SetPackagesDependencies) Act(collection *pkg.PackageCollection) {
 				singlePkg.Composer.Items.Require[name] = versionString
 			} else if currentVersion, ok := collection.RootPackage.Composer.Items.Require[name]; ok {
 				singlePkg.Composer.Items.Require[name] = currentVersion
+			} else if strings.HasPrefix(name, "ext-") || strings.HasPrefix(name, "php") {
+				continue
 			} else {
-				log.Fatalf("singlePkg %s not found locally or in root", name)
+				log.Fatalf("package %s not found locally or in root", name)
 			}
 		}
 	}
@@ -27,5 +30,5 @@ func (s SetPackagesDependencies) Description() string {
 }
 
 func (s SetPackagesDependencies) String() string {
-return "set-packages-dependencies"
+	return "set-packages-dependencies"
 }

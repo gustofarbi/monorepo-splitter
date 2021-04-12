@@ -9,8 +9,10 @@ var (
 	validate                = Validate{}
 	setPackagesDependencies = SetPackagesDependencies{}
 	writeChanges            = WriteChanges{}
-	tagRelease              = TagRelease{}
+	tagRelease              = CommitChanges{}
 	splitPackages           = SplitPackages{}
+	reset                   = Reset{}
+	updateConfigs           = UpdateConfigs{}
 )
 
 type pipeline struct {
@@ -32,6 +34,10 @@ func NewPipeline(names []string) *pipeline {
 			action = tagRelease
 		case splitPackages.String():
 			action = splitPackages
+		case reset.String():
+			action = reset
+		case updateConfigs.String():
+			action = updateConfigs
 		default:
 			panic("unknown action: " + name)
 		}

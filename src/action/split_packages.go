@@ -16,6 +16,9 @@ type SplitPackages struct{}
 
 func (s SplitPackages) Act(collection *pkg.PackageCollection) {
 	rootLocalPath := collection.RootPackage.Path
+	if collection.Conf.PackageAuth == nil {
+		collection.Conf.PackageAuth = collection.Conf.PackageAuthFunc()
+	}
 	for _, singlePkg := range collection.Packages {
 		_, err := collection.RootPackage.Repo.CreateRemote(&config.RemoteConfig{
 			Name: singlePkg.RemoteName,
@@ -57,7 +60,7 @@ func (s SplitPackages) Act(collection *pkg.PackageCollection) {
 			fmt.Sprintf("%s:refs/heads/%s", result.Head().String(), collection.Conf.Packages.Branch),
 			"-f",
 		)
-		println(cmd.String())
+		log.Println(cmd.String())
 		cmd.Stdout = os.Stdout
 		err = cmd.Run()
 		if err != nil {
@@ -80,7 +83,7 @@ func (s SplitPackages) Act(collection *pkg.PackageCollection) {
 		po := &git.PushOptions{
 			RemoteName: singlePkg.RemoteName,
 			RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
-			Auth:       collection.Conf.AuthMethod,
+			Auth:       collection.Conf.PackageAuth,
 		}
 		err = repo.Push(po)
 		if err != nil {

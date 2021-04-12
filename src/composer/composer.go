@@ -15,16 +15,20 @@ const (
 	requireDev = "require-dev"
 	replace    = "replace"
 	name       = "name"
+	config     = "config"
+
+	VendorDir = "vendor-dir"
 )
 
 //todo do this via json
 
 type Composer struct {
 	Items struct {
-		Require    map[string]string `json:"require,omitempty"`
-		RequireDev map[string]string `json:"require-dev,omitempty"`
-		Replace    map[string]string `json:"replace,omitempty"`
-		Name       string            `json:"name"`
+		Require    map[string]string      `json:"require,omitempty"`
+		RequireDev map[string]string      `json:"require-dev,omitempty"`
+		Replace    map[string]string      `json:"replace,omitempty"`
+		Config     map[string]interface{} `json:"config"`
+		Name       string                 `json:"name"`
 	}
 	Rest map[string]interface{}
 }
@@ -58,6 +62,7 @@ func LoadComposer(path string) (*Composer, error) {
 	delete(c.Rest, requireDev)
 	delete(c.Rest, replace)
 	delete(c.Rest, name)
+	delete(c.Rest, config)
 
 	return &c, nil
 }
@@ -71,6 +76,9 @@ func (c *Composer) WriteToFile(path string) error {
 	}
 	if c.Items.Replace != nil {
 		c.Rest[replace] = c.Items.Replace
+	}
+	if c.Items.Config != nil {
+		c.Rest[config] = c.Items.Config
 	}
 	c.Rest[name] = c.Items.Name
 

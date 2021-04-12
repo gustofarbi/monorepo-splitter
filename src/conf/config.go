@@ -2,10 +2,13 @@ package conf
 
 import (
 	"fmt"
+	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
+	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
+	"os/user"
 	"path/filepath"
 	"splitter/version"
 	"strings"
@@ -25,7 +28,9 @@ type Config struct {
 	Version  string   `yaml:"version"`
 	Actions  []string `yaml:"actions"`
 	version.Semver
-	http.AuthMethod
+	PackageAuthFunc AuthFunc
+	PackageAuth     http.AuthMethod
+	RootAuth        transport.AuthMethod
 }
 
 type Root struct {
@@ -48,6 +53,13 @@ type Pkg struct {
 
 func LoadConfig(name string, authFunc AuthFunc) (*Config, error) {
 	if name != "" {
+		if strings.HasPrefix(name, "~") {
+			homeDir, err := os.UserHomeDir()
+			if err != nil {
+				return nil, err
+			}
+			name = filepath.Join(homeDir, name[1:])
+		}
 		return loadConfig(name, authFunc)
 	}
 	for _, ext := range extensions {
@@ -60,7 +72,7 @@ func LoadConfig(name string, authFunc AuthFunc) (*Config, error) {
 	return nil, fmt.Errorf("no suitable conf file found")
 }
 
-func loadConfig(filename string, authFunc AuthFunc ) (*Config, error) {
+func loadConfig(filename string, authFunc AuthFunc) (*Config, error) {
 	b, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -73,7 +85,20 @@ func loadConfig(filename string, authFunc AuthFunc ) (*Config, error) {
 		return nil, err
 	}
 	c.Semver = version.FromString(c.Version)
-	c.AuthMethod = authFunc()
+	c.PackageAuthFunc = authFunc
+	current, err := user.Current()
+	if err != nil {
+		return nil, err
+	}
+	rootAuth, err := ssh.NewPublicKeysFromFile(
+		current.Name,
+		filepath.Join(current.HomeDir, ".ssh/id_rsa"),
+		"",
+	)
+	if err != nil {
+		return nil, err
+	}
+	c.RootAuth = rootAuth
 
 	if strings.HasPrefix(c.Root.Path, "~") {
 		homeDir, err := os.UserHomeDir()

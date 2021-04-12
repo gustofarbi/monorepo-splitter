@@ -26,7 +26,7 @@ func main() {
 
 func loadAuth() http.AuthMethod {
 	var username string
-	fmt.Printf("enter git credentials\nusername: ")
+	fmt.Printf("enter github credentials\nusername: ")
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		username = scanner.Text()
