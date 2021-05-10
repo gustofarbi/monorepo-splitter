@@ -25,7 +25,7 @@ func (r Reset) Act(collection *pkg.PackageCollection) {
 }
 
 func (r Reset) Description() string {
-	return "reset changes"
+	return "reset changes to original state"
 }
 
 func (r Reset) String() string {

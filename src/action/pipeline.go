@@ -39,7 +39,7 @@ func NewPipeline(names []string) *pipeline {
 		case updateConfigs.String():
 			action = updateConfigs
 		default:
-			panic("unknown action: " + name)
+			panic("unknown action in config: " + name)
 		}
 		p.actions[i] = action
 	}

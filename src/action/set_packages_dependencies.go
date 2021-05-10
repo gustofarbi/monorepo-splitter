@@ -1,7 +1,7 @@
 package action
 
 import (
-	"log"
+	"fmt"
 	"splitter/pkg"
 	"strings"
 )
@@ -19,7 +19,7 @@ func (s SetPackagesDependencies) Act(collection *pkg.PackageCollection) {
 			} else if strings.HasPrefix(name, "ext-") || strings.HasPrefix(name, "php") {
 				continue
 			} else {
-				log.Fatalf("package %s not found locally or in root", name)
+				panic(fmt.Sprintf("package %s not found locally or in root", name))
 			}
 		}
 	}

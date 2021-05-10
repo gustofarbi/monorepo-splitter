@@ -15,41 +15,20 @@ import (
 type SplitPackages struct{}
 
 func (s SplitPackages) Act(collection *pkg.PackageCollection) {
-	rootLocalPath := collection.RootPackage.Path
+	rootPath := collection.RootPackage.Path
+
+	// fetch git credentials
 	if collection.Conf.PackageAuth == nil {
 		collection.Conf.PackageAuth = collection.Conf.PackageAuthFunc()
 	}
-	for _, singlePkg := range collection.Packages {
-		_, err := collection.RootPackage.Repo.CreateRemote(&config.RemoteConfig{
-			Name: singlePkg.RemoteName,
-			URLs: []string{singlePkg.RemoteUrl},
-		})
-		if err != nil && err != git.ErrRemoteExists {
-			log.Fatalf("cannot create remote %s: %s", singlePkg.RemoteName, err)
-		}
-		err = os.Chdir(rootLocalPath)
-		if err != nil {
-			log.Fatalf("cannot change directory: %s", err)
-		}
-		prefix := &splitter.Prefix{
-			From: singlePkg.Path,
-		}
-		splitConfig := &splitter.Config{
-			Prefixes:   []*splitter.Prefix{prefix},
-			Origin:     "HEAD",
-			Path:       ".",
-			GitVersion: "latest",
-		}
 
-		result := &splitter.Result{}
-		err = splitter.Split(splitConfig, result)
-		if err != nil {
-			fmt.Println("cannot split: " + err.Error())
-		}
+	for _, singlePkg := range collection.Packages {
+		createRemote(collection, singlePkg, rootPath)
+		result := getSplitResult(singlePkg)
+
 		// needs to be done via cmdline because of this https://github.com/go-git/go-git/issues/105
-		err = os.Chdir(singlePkg.Path)
-		if err != nil {
-			log.Fatalf("cannot change directory: %s", err)
+		if err := os.Chdir(singlePkg.Path); err != nil {
+			panic(fmt.Sprintf("cannot change directory: %+v", err))
 		}
 
 		repo := singlePkg.Repo
@@ -62,37 +41,33 @@ func (s SplitPackages) Act(collection *pkg.PackageCollection) {
 		)
 		log.Println(cmd.String())
 		cmd.Stdout = os.Stdout
-		err = cmd.Run()
-		if err != nil {
+		if err := cmd.Run(); err != nil {
 			panic(err)
 		}
-		err = repo.Fetch(&git.FetchOptions{
+		if err := repo.Fetch(&git.FetchOptions{
 			RemoteName: singlePkg.RemoteName,
 			Force:      true,
 			Progress:   os.Stdout,
 			Auth:       collection.Conf.PackageAuth,
-		})
-		if err != nil {
+		}); err != nil {
 			panic(err)
 		}
 		t, err := repo.Object(plumbing.AnyObject, plumbing.NewHash(result.Head().String()))
 		if err != nil {
 			panic(err)
 		}
-		_, err = repo.CreateTag(collection.Conf.Semver.GitTag(), t.ID(), &git.CreateTagOptions{
+		if _, err = repo.CreateTag(collection.Conf.Semver.String(), t.ID(), &git.CreateTagOptions{
 			Message: "prepare release",
-		})
-		if err != nil {
-			log.Fatalf("cannot create tag: %s", err)
+		}); err != nil {
+			panic(fmt.Sprintf("cannot create tag: %+v", err))
 		}
 		po := &git.PushOptions{
 			RemoteName: singlePkg.RemoteName,
 			RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
 			Auth:       collection.Conf.PackageAuth,
 		}
-		err = repo.Push(po)
-		if err != nil {
-			panic(err)
+		if err = repo.Push(po); err != nil {
+			panic(fmt.Sprintf("cannot push to remote repository: %+v", err))
 		}
 	}
 }
@@ -103,4 +78,35 @@ func (s SplitPackages) Description() string {
 
 func (s SplitPackages) String() string {
 	return "split-packages"
+}
+
+func createRemote(collection *pkg.PackageCollection, singlePkg *pkg.Package, rootPath string) {
+	_, err := collection.RootPackage.Repo.CreateRemote(&config.RemoteConfig{
+		Name: singlePkg.RemoteName,
+		URLs: []string{singlePkg.RemoteUrl},
+	})
+	if err != nil && err != git.ErrRemoteExists {
+		panic(fmt.Sprintf("cannot create remote %s: %s", singlePkg.RemoteName, err))
+	}
+	if err = os.Chdir(rootPath); err != nil {
+		panic(fmt.Sprintf("cannot change directory: %+v", err))
+	}
+}
+
+func getSplitResult(singlePkg *pkg.Package) *splitter.Result {
+	prefix := &splitter.Prefix{
+		From: singlePkg.Path,
+	}
+	splitConfig := &splitter.Config{
+		Prefixes:   []*splitter.Prefix{prefix},
+		Origin:     "HEAD",
+		Path:       ".",
+		GitVersion: "latest",
+	}
+
+	result := &splitter.Result{}
+	if err := splitter.Split(splitConfig, result); err != nil {
+		panic("cannot split: " + err.Error())
+	}
+	return result
 }

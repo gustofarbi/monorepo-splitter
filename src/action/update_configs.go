@@ -14,7 +14,7 @@ func (u UpdateConfigs) Act(collection *pkg.PackageCollection) {
 }
 
 func (u UpdateConfigs) Description() string {
-	return "update package composer.jsons (remove config/vendor-dir)"
+	return "update package composer.jsons (remove .config.vendor-dir)"
 }
 
 func (u UpdateConfigs) String() string {

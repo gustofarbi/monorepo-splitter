@@ -1,4 +1,4 @@
-version: 0.0.1
+version: 0.0.5
 root:
   branch: feature/canvas-renderer/develop
   path: ~/mp/myposter

@@ -80,8 +80,7 @@ func loadConfig(filename string, authFunc AuthFunc) (*Config, error) {
 
 	var c Config
 
-	err = yaml.Unmarshal(b, &c)
-	if err != nil {
+	if err = yaml.Unmarshal(b, &c); err != nil {
 		return nil, err
 	}
 	c.Semver = version.FromString(c.Version)
