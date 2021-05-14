@@ -1,5 +1,7 @@
 # Repository splitting
-## Usage
+## Download
+You can download binary build for MacOS: https://github.com/gustofarbi/monorepo-splitter/releases
+## Installation (this requires golang)
 1. run `make install` and open a new shell
 2. create config file `<some name>.yaml`
 3. run `splitter -c <path to your config>.yaml`
