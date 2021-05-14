@@ -5,15 +5,22 @@ import (
 	"splitter/pkg"
 )
 
-var (
-	validate                = Validate{}
-	setPackagesDependencies = SetPackagesDependencies{}
-	writeChanges            = WriteChanges{}
-	tagRelease              = CommitChanges{}
-	splitPackages           = SplitPackages{}
-	reset                   = Reset{}
-	updateConfigs           = UpdateConfigs{}
-)
+var actionMap map[string]Action
+
+func init() {
+	actionMap = make(map[string]Action)
+	for _, action := range []Action{
+		Validate{},
+		SetPackagesDependencies{},
+		WriteChanges{},
+		CommitChanges{},
+		SplitPackages{},
+		Reset{},
+		UpdateConfigs{},
+	} {
+		actionMap[action.String()] = action
+	}
+}
 
 type pipeline struct {
 	actions []Action
@@ -21,27 +28,12 @@ type pipeline struct {
 
 func NewPipeline(names []string) *pipeline {
 	p := &pipeline{actions: make([]Action, len(names))}
-	var action Action
 	for i, name := range names {
-		switch name {
-		case "validate":
-			action = validate
-		case setPackagesDependencies.String():
-			action = setPackagesDependencies
-		case writeChanges.String():
-			action = writeChanges
-		case tagRelease.String():
-			action = tagRelease
-		case splitPackages.String():
-			action = splitPackages
-		case reset.String():
-			action = reset
-		case updateConfigs.String():
-			action = updateConfigs
-		default:
+		if action, ok := actionMap[name]; ok {
+			p.actions[i] = action
+		} else {
 			panic("unknown action in config: " + name)
 		}
-		p.actions[i] = action
 	}
 	return p
 }

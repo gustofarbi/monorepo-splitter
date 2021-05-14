@@ -25,8 +25,8 @@ func (s Semver) String() string {
 	return fmt.Sprintf("%d.%d.%d", s.major, s.minor, s.patch)
 }
 
-func (s Semver) CaretedVersion() string {
-	return "^" + s.String()
+func (s Semver) CaretedMinorVersion() string {
+	return fmt.Sprintf("^%d.%d", s.major, s.minor)
 }
 func (s Semver) GitTag() string {
 	return "v" + s.String()

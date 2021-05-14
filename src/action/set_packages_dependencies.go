@@ -9,7 +9,7 @@ import (
 type SetPackagesDependencies struct{}
 
 func (s SetPackagesDependencies) Act(collection *pkg.PackageCollection) {
-	versionString := collection.Conf.Semver.CaretedVersion()
+	versionString := collection.Conf.Semver.CaretedMinorVersion()
 	for _, singlePkg := range collection.Packages {
 		for name := range singlePkg.Composer.Items.Require {
 			if _, ok := collection.Packages[name]; ok {

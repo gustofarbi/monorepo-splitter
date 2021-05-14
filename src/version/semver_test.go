@@ -12,3 +12,11 @@ func TestFromString(t *testing.T) {
 		t.Fatalf("wrong value")
 	}
 }
+
+func TestSemver_CaretedMinorVersion(t *testing.T) {
+	tag := "refs/head/v1.5.56"
+	semver := FromTag(tag)
+	if semver.CaretedMinorVersion() != "^1.5" {
+		t.Fatalf("wrong careted minor version: %s", semver.CaretedMinorVersion())
+	}
+}

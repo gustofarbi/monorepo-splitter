@@ -7,7 +7,9 @@ import (
 )
 
 func TestLoadConfig(t *testing.T) {
-	c, err := LoadConfig("config.yaml", &http.BasicAuth{})
+	c, err := LoadConfig("config.yaml", func() http.AuthMethod {
+		return &http.BasicAuth{}
+	})
 	if err != nil {
 		t.Fatalf("loading failed: %s", err)
 	}

@@ -35,9 +35,9 @@ func (t CommitChanges) Act(collection *pkg.PackageCollection) {
 }
 
 func (t CommitChanges) Description() string {
-	return "add to git, commit changes and tag the new release"
+	return "add to git and commit changes"
 }
 
 func (t CommitChanges) String() string {
-	return "push-changes"
+	return "commit-changes"
 }

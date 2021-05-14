@@ -1,4 +1,4 @@
-version: 0.0.5
+version: 0.0.6
 root:
   branch: feature/canvas-renderer/develop
   path: ~/mp/myposter
@@ -22,6 +22,6 @@ actions:
   - set-packages-dependencies
   - update-configs
   - write-changes
-  - push-changes
+  - commit-changes
   - split-packages
   - reset
