@@ -1,9 +1,8 @@
 # Repository splitting
 ## Usage
-1. install task: https://github.com/go-task/task
-2. run `task install` and open a new shell
-3. create config file `<some name>.yaml`
-4. run `splitter -c <path to your config>.yaml`
+1. run `make install` and open a new shell
+2. create config file `<some name>.yaml`
+3. run `splitter -c <path to your config>.yaml`
 ## Config file syntax
 ```
 version: 0.0.3
