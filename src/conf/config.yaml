@@ -2,7 +2,6 @@ version: 1.5.3
 root:
   branch: master
   remote: origin
-  path: ~/workspace/split-demo
 packages:
   prefix: packages
   branch: master
