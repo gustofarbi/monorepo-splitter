@@ -1,7 +1,7 @@
-version: 0.0.6
+version: 0.0.9
 root:
-  branch: feature/canvas-renderer/develop
-  path: ~/mp/myposter
+  branch: develop
+  path: /Users/matej.karolcik/Development/mp/myposter
   remote: origin
 packages:
   prefix: packages
@@ -17,6 +17,9 @@ packages:
       url: https://github.com/myposter-de/value-objects.git
     - remote: value-object
       url: https://github.com/myposter-de/value-object.git
+    - remote: canvas-renderer-lib
+      url: https://github.com/myposter-de/canvas-renderer-lib.git
+      path: canvas-renderer-fallback
 actions:
   - validate
   - set-packages-dependencies

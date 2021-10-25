@@ -63,7 +63,8 @@ func validateSinglePackage(
 	repo *git.Repository,
 	remote, url string,
 	newVersion version.Semver,
-	auth transport.AuthMethod) {
+	auth transport.AuthMethod,
+) {
 	_, err := repo.CreateRemote(&config.RemoteConfig{
 		Name: remote,
 		URLs: []string{url},

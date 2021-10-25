@@ -99,8 +99,8 @@ func loadConfig(filename string, authFunc AuthFunc) (*Config, error) {
 	}
 	c.RootAuth = rootAuth
 
-	wd, _ := os.Getwd()
-	c.Root.Path = wd
+	//wd, _ := os.Getwd()
+	//c.Root.Path = wd
 	for _, item := range c.Items {
 		if item.Path == "" {
 			item.Path = item.Remote

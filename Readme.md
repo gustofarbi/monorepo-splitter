@@ -2,9 +2,10 @@
 ## Download
 You can download binary build for MacOS: https://github.com/myposter-de/monorepo-splitter/releases
 ## Installation (this requires golang)
+1. run `brew install libgit2 pkg-config`
 1. run `make install` and open a new shell
-2. create config file `<some name>.yaml`
-3. run `splitter -c <path to your config>.yaml`
+1. create config file `<some name>.yaml`
+1. run `splitter -c <path to your config>.yaml`
 ## Config file syntax
 ```
 version: 0.0.3
