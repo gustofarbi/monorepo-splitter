@@ -1,4 +1,4 @@
-version: 0.0.15
+version: 0.0.18
 root:
   branch: develop
   path: /Users/matej.karolcik/Development/mp/myposter
@@ -7,6 +7,10 @@ packages:
   prefix: packages
   branch: master
   items:
+    - remote: exception
+      url: https://github.com/myposter-de/exception.git
+    - remote: process
+      url: https://github.com/myposter-de/process.git
     - remote: canvas
       url: https://github.com/myposter-de/canvas.git
     - remote: enum
@@ -19,7 +23,7 @@ packages:
       url: https://github.com/myposter-de/value-object.git
     - remote: canvas-renderer-lib
       url: https://github.com/myposter-de/canvas-renderer-lib.git
-      path: canvas-renderer-fallback
+      path: canvas-renderer-library
 actions:
   - validate
   - set-packages-dependencies
