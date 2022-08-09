@@ -1,9 +1,9 @@
-package version
+package semver
 
 import (
 	"fmt"
-	"log"
 	"path/filepath"
+	"splitter/version"
 	"strconv"
 	"strings"
 )
@@ -36,10 +36,10 @@ func (s Semver) IntVal() int {
 	return value
 }
 
-func FromString(s string) Semver {
+func FromString(s string) (Semver, error) {
 	strList := strings.Split(s, ".")
 	if len(strList) != partCount {
-		panic("wrong semantic version format: " + s)
+		return Semver{}, fmt.Errorf("invalid version string: %s", s)
 	}
 	intList := make([]int, partCount)
 	var res int64
@@ -47,7 +47,7 @@ func FromString(s string) Semver {
 
 	for i, v := range strList {
 		if res, err = strconv.ParseInt(v, 10, 64); err != nil {
-			log.Fatalf("error parsing version from %s: %s", s, err)
+			return Semver{}, fmt.Errorf("error parsing version from %s: %s", s, err)
 		}
 		intList[i] = int(res)
 	}
@@ -56,10 +56,10 @@ func FromString(s string) Semver {
 		major: intList[0],
 		minor: intList[1],
 		patch: intList[2],
-	}
+	}, nil
 }
 
-func FromTag(tag string) Semver {
+func FromTag(tag string) (Semver, error) {
 	base := filepath.Base(tag)
 	if strings.HasPrefix(base, "v") {
 		base = base[1:]
@@ -67,16 +67,24 @@ func FromTag(tag string) Semver {
 	return FromString(base)
 }
 
-func (s Semver) IsGreater(b Semver) bool {
-	if s.major == b.major {
-		if s.minor == b.minor {
-			return s.patch > b.patch
+func (s Semver) IsGreater(v version.Version) bool {
+	switch v.(type) {
+	case Semver:
+		b := v.(Semver)
+		if s.major == b.major {
+			if s.minor == b.minor {
+				return s.patch > b.patch
+			}
+
+			return s.minor > b.minor
 		}
 
-		return s.minor > b.minor
+		return s.major > b.major
+	case version.StringVersion:
+	default:
+		return false
 	}
-
-	return s.major > b.major
+	return false
 }
 
 type SemverCollection struct {

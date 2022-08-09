@@ -8,8 +8,8 @@ import (
 
 type SetPackagesDependencies struct{}
 
-func (s SetPackagesDependencies) Act(collection *pkg.PackageCollection) {
-	versionString := collection.Conf.Semver.CaretedMinorVersion()
+func (s SetPackagesDependencies) Act(collection *pkg.PackageCollection) error {
+	versionString := collection.Conf.VersionValue.CaretedMinorVersion()
 	for _, singlePkg := range collection.Packages {
 		for name := range singlePkg.Composer.Items.Require {
 			if _, ok := collection.Packages[name]; ok {
@@ -19,10 +19,12 @@ func (s SetPackagesDependencies) Act(collection *pkg.PackageCollection) {
 			} else if strings.HasPrefix(name, "ext-") || strings.HasPrefix(name, "php") {
 				continue
 			} else {
-				panic(fmt.Sprintf("package %s not found locally or in root", name))
+				return fmt.Errorf("package %s not found locally or in root", name)
 			}
 		}
 	}
+
+	return nil
 }
 
 func (s SetPackagesDependencies) Description() string {

@@ -1,7 +1,7 @@
 path = bin/splitter-mac
 
 build:
-	cd src && GOOS=darwin GOARCH=amd64 go build -o ../$(path) main.go
+	cd src && GOOS=darwin GOARCH=amd64 PKG_CONFIG_PATH=/usr/local/opt/libgit2/lib/pkgconfig CGO_LDFLAGS="-Wl,-rpath,/usr/local/opt/libgit2/lib"  go build -o ../$(path) main.go
 
 install: build
 	mv $(path) /usr/local/bin/splitter

@@ -6,7 +6,7 @@ import (
 )
 
 type Action interface {
-	Act(collection *pkg.PackageCollection)
+	Act(collection *pkg.PackageCollection) error
 	Description() string
 	fmt.Stringer
 }

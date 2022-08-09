@@ -9,9 +9,9 @@ import (
 
 type CommitChanges struct{}
 
-func (t CommitChanges) Act(collection *pkg.PackageCollection) {
+func (t CommitChanges) Act(collection *pkg.PackageCollection) error {
 	if err := os.Chdir(collection.RootPackage.Path); err != nil {
-		panic(err)
+		return fmt.Errorf("cannot change directory to: %s: %+v", collection.RootPackage.Path, err)
 	}
 
 	// stage all changes
@@ -19,7 +19,7 @@ func (t CommitChanges) Act(collection *pkg.PackageCollection) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
-		panic(err)
+		return fmt.Errorf("error adding changes to git: %+v", err)
 	}
 
 	// commit changes
@@ -27,11 +27,13 @@ func (t CommitChanges) Act(collection *pkg.PackageCollection) {
 		"git",
 		"commit",
 		"-m",
-		fmt.Sprintf("'prepare release %s'", collection.Conf.Semver.GitTag()),
+		fmt.Sprintf("'prepare release %s'", collection.Conf.VersionValue.GitTag()),
 	)
 	if err := cmd.Run(); err != nil {
-		panic(err)
+		return fmt.Errorf("error commiting changes: %+v", err)
 	}
+
+	return nil
 }
 
 func (t CommitChanges) Description() string {

@@ -1,0 +1,34 @@
+version: test-tag
+root:
+#  branch: develop
+  path: /Users/matej.karolcik/Development/mp/myposter
+  remote: origin
+packages:
+  prefix: packages
+  branch: master
+  items:
+#    - remote: exception
+#      url: https://github.com/myposter-de/exception.git
+#    - remote: process
+#      url: https://github.com/myposter-de/process.git
+#    - remote: canvas
+#      url: https://github.com/myposter-de/canvas.git
+#    - remote: enum
+#      url: https://github.com/myposter-de/enum.git
+#    - remote: helper
+#      url: https://github.com/myposter-de/helper.git
+#    - remote: value-objects
+#      url: https://github.com/myposter-de/value-objects.git
+#    - remote: value-object
+#      url: https://github.com/myposter-de/value-object.git
+    - remote: canvas-renderer-lib
+      url: https://github.com/myposter-de/canvas-renderer-lib.git
+      path: canvas-renderer-library
+actions:
+  - validate
+#  - set-packages-dependencies
+  - update-configs
+  - write-changes
+  - commit-changes
+  - split-packages
+  - reset

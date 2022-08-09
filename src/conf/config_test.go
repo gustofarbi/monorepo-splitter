@@ -25,7 +25,7 @@ func TestLoadConfig(t *testing.T) {
 	if c.Root.Remote != "origin" {
 		t.Fatal("wrong root remote name")
 	}
-	if c.Version != "1.5.3" {
+	if c.VersionTemp != "1.5.3" {
 		t.Fatal("wrong version")
 	}
 	if len(c.Actions) != 5 {

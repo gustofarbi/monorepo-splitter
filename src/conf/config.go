@@ -5,12 +5,13 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
 	"splitter/version"
+	"splitter/version/semver"
 	"strings"
 )
 
@@ -20,17 +21,17 @@ const (
 
 var extensions = [2]string{"yaml", "yml"}
 
-type AuthFunc func() http.AuthMethod
+type AuthFunc func() (http.AuthMethod, error)
 
 type Config struct {
-	Root     `yaml:"root"`
-	Packages `yaml:"packages"`
-	Version  string   `yaml:"version"`
-	Actions  []string `yaml:"actions"`
-	version.Semver
-	PackageAuthFunc AuthFunc
-	PackageAuth     http.AuthMethod
-	RootAuth        transport.AuthMethod
+	Root            `yaml:"root"`
+	Packages        `yaml:"packages"`
+	VersionTemp     string               `yaml:"version"`
+	Actions         []string             `yaml:"actions"`
+	VersionValue    version.Version      `yaml:"-"`
+	PackageAuthFunc AuthFunc             `yaml:"-"`
+	PackageAuth     http.AuthMethod      `yaml:"-"`
+	RootAuth        transport.AuthMethod `yaml:"-"`
 }
 
 type Root struct {
@@ -83,7 +84,9 @@ func loadConfig(filename string, authFunc AuthFunc) (*Config, error) {
 	if err = yaml.Unmarshal(b, &c); err != nil {
 		return nil, err
 	}
-	c.Semver = version.FromString(c.Version)
+	if c.VersionValue, err = semver.FromString(c.VersionTemp); err != nil {
+		c.VersionValue = version.StringVersion{Version: c.VersionTemp}
+	}
 	c.PackageAuthFunc = authFunc
 	current, err := user.Current()
 	if err != nil {
@@ -99,8 +102,6 @@ func loadConfig(filename string, authFunc AuthFunc) (*Config, error) {
 	}
 	c.RootAuth = rootAuth
 
-	//wd, _ := os.Getwd()
-	//c.Root.Path = wd
 	for _, item := range c.Items {
 		if item.Path == "" {
 			item.Path = item.Remote

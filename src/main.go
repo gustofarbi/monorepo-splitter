@@ -3,12 +3,12 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/go-git/go-git/v5/utils/ioutil"
 	"golang.org/x/term"
-	"log"
 	"os"
 	"path"
 	"splitter/action"
@@ -19,6 +19,12 @@ import (
 var (
 	config    = flag.String("c", "", "configfile to use")
 	overwrite = flag.Bool("o", false, "overwrite configs cache")
+
+	dryRun = flag.Bool(
+		"d",
+		false,
+		"instead of pushing changes, this option resets all repositories to previous state",
+	)
 )
 
 type SplitterConfig struct {
@@ -28,15 +34,28 @@ type SplitterConfig struct {
 
 func main() {
 	flag.Parse()
-	collection := loadCollection()
-	pipeline := action.NewPipeline(collection.Conf.Actions)
-	pipeline.Run(collection)
+	if *dryRun {
+		fmt.Println("!!! running dry !!!")
+	}
+	collection, err := loadCollection()
+	if err != nil {
+		fmt.Printf("could not load collection: %s\n", err)
+		return
+	}
+	if pipeline, err := action.NewPipeline(collection.Conf.Actions, *dryRun); err != nil {
+		fmt.Printf("could not create a pipeline: %s\n", err)
+		return
+	} else {
+		if err := pipeline.Run(collection); err != nil {
+			panic(err)
+		}
+	}
 }
 
-func loadAuth() http.AuthMethod {
+func loadAuth() (http.AuthMethod, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		log.Fatalf("cannot get home-dir: %+v\n", err)
+		return nil, fmt.Errorf("cannot get home-dir: %s\n", err)
 	}
 	var sc SplitterConfig
 	splitterCachePath := path.Join(homeDir, ".splitter", "config")
@@ -44,9 +63,9 @@ func loadAuth() http.AuthMethod {
 		var errCacheFile error
 		bytes, errCacheFile := os.ReadFile(splitterCachePath)
 		if errCacheFile != nil {
-			fmt.Println("cannot read config cache file")
+			return nil, errors.New("cannot read config cache file")
 		} else if errCacheFile = json.Unmarshal(bytes, &sc); errCacheFile != nil {
-			fmt.Println("cannot unmarshal config cache file")
+			return nil, errors.New("cannot unmarshal config cache file")
 		}
 		if errCacheFile != nil {
 			_ = os.Remove(splitterCachePath)
@@ -54,7 +73,7 @@ func loadAuth() http.AuthMethod {
 			return &http.BasicAuth{
 				Username: sc.Username,
 				Password: sc.Token,
-			}
+			}, nil
 		}
 	}
 	var username string
@@ -67,7 +86,7 @@ func loadAuth() http.AuthMethod {
 	fmt.Print("token: ")
 	b, err := term.ReadPassword(0)
 	if err != nil {
-		log.Fatalln("error reading token: ", err)
+		return nil, fmt.Errorf("error reading token: %s", err)
 	}
 	sc = SplitterConfig{
 		Username: username,
@@ -76,33 +95,33 @@ func loadAuth() http.AuthMethod {
 	fmt.Println()
 	err = os.Mkdir(path.Dir(splitterCachePath), 0755)
 	if err != nil {
-		fmt.Printf("cannot create directory %s: %+v\n", path.Dir(splitterCachePath), err)
+		return nil, fmt.Errorf("cannot create directory %s: %s", path.Dir(splitterCachePath), err)
 	}
 	f, err := os.Create(splitterCachePath)
 	if err != nil {
-		log.Printf("cannot write config file: %+v\n", err)
+		return nil, fmt.Errorf("cannot write config file: %s", err)
 	}
 	defer ioutil.CheckClose(f, &err)
 	err = json.NewEncoder(f).Encode(sc)
 	if err != nil {
-		log.Printf("cannot write config into file: %+v\n", err)
+		return nil, fmt.Errorf("cannot write config into file: %s", err)
 	}
 	return &http.BasicAuth{
 		Username: sc.Username,
 		Password: sc.Token,
-	}
+	}, nil
 }
 
-func loadCollection() *pkg.PackageCollection {
+func loadCollection() (*pkg.PackageCollection, error) {
 	cnf, err := conf.LoadConfig(*config, loadAuth)
 	if err != nil {
-		log.Fatalf("error loading config: %+v", err)
+		return nil, fmt.Errorf("error loading config: %s", err)
 	}
 
 	collection, err := pkg.FromConfig(cnf)
 	if err != nil {
-		log.Fatalf("error loading packages collection: %+v", err)
+		return nil, fmt.Errorf("error loading packages collection: %s", err)
 	}
 
-	return collection
+	return collection, nil
 }

@@ -8,16 +8,18 @@ import (
 
 type WriteChanges struct{}
 
-func (w WriteChanges) Act(collection *pkg.PackageCollection) {
+func (w WriteChanges) Act(collection *pkg.PackageCollection) error {
 	for _, singlePkg := range collection.Packages {
 		if err := singlePkg.Composer.WriteToFile(filepath.Join(
 			collection.RootPackage.Path,
 			singlePkg.Path,
 			"composer.json",
 		)); err != nil {
-			panic(fmt.Sprintf("writing changes to singlePkg %s failed: %s", singlePkg.Path, err))
+			return fmt.Errorf("writing changes to singlePkg %s failed: %s", singlePkg.Path, err)
 		}
 	}
+
+	return nil
 }
 
 func (w WriteChanges) Description() string {
