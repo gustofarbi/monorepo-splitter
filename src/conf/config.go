@@ -11,7 +11,6 @@ import (
 	"os/user"
 	"path/filepath"
 	"splitter/version"
-	"splitter/version/semver"
 	"strings"
 )
 
@@ -26,7 +25,6 @@ type AuthFunc func() (http.AuthMethod, error)
 type Config struct {
 	Root            `yaml:"root"`
 	Packages        `yaml:"packages"`
-	VersionTemp     string               `yaml:"version"`
 	Actions         []string             `yaml:"actions"`
 	VersionValue    version.Version      `yaml:"-"`
 	PackageAuthFunc AuthFunc             `yaml:"-"`
@@ -52,7 +50,7 @@ type Pkg struct {
 	Path   string `yaml:"path"`
 }
 
-func LoadConfig(name string, authFunc AuthFunc) (*Config, error) {
+func LoadConfig(name string, authFunc AuthFunc, version version.Version) (*Config, error) {
 	if name != "" {
 		if strings.HasPrefix(name, "~") {
 			homeDir, err := os.UserHomeDir()
@@ -61,19 +59,19 @@ func LoadConfig(name string, authFunc AuthFunc) (*Config, error) {
 			}
 			name = filepath.Join(homeDir, name[1:])
 		}
-		return loadConfig(name, authFunc)
+		return loadConfig(name, authFunc, version)
 	}
 	for _, ext := range extensions {
 		filename := fmt.Sprintf("%s.%s", configName, ext)
 		if _, err := os.Stat(filename); os.IsNotExist(err) {
 			continue
 		}
-		return loadConfig(filename, authFunc)
+		return loadConfig(filename, authFunc, version)
 	}
 	return nil, fmt.Errorf("no suitable conf file found")
 }
 
-func loadConfig(filename string, authFunc AuthFunc) (*Config, error) {
+func loadConfig(filename string, authFunc AuthFunc, version version.Version) (*Config, error) {
 	b, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -84,10 +82,8 @@ func loadConfig(filename string, authFunc AuthFunc) (*Config, error) {
 	if err = yaml.Unmarshal(b, &c); err != nil {
 		return nil, err
 	}
-	if c.VersionValue, err = semver.FromString(c.VersionTemp); err != nil {
-		c.VersionValue = version.StringVersion{Version: c.VersionTemp}
-	}
 	c.PackageAuthFunc = authFunc
+	c.VersionValue = version
 	current, err := user.Current()
 	if err != nil {
 		return nil, err

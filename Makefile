@@ -17,3 +17,6 @@ install-libgit2:
 
 download:
 	curl -sL https://github.com/myposter-de/monorepo-splitter/releases/download/0.0.3/splitter-mac -o /usr/local/bin/splitter
+
+test:
+	cd src && GOOS=darwin GOARCH=amd64 PKG_CONFIG_PATH=/usr/local/opt/libgit2/lib/pkgconfig CGO_LDFLAGS="-Wl,-rpath,/usr/local/opt/libgit2/lib"  go test ./...

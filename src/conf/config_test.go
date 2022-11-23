@@ -2,11 +2,19 @@ package conf
 
 import (
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
+	"splitter/version/semver"
 	"testing"
 )
 
 func TestLoadConfig(t *testing.T) {
-	c, err := LoadConfig("config.yaml", func() http.AuthMethod { return &http.BasicAuth{} })
+	version := semver.Semver{}
+	c, err := LoadConfig(
+		"config.yaml",
+		func() (http.AuthMethod, error) {
+			return &http.BasicAuth{}, nil
+		},
+		version,
+	)
 	if err != nil {
 		t.Fatalf("loading failed: %s", err)
 	}
@@ -24,9 +32,6 @@ func TestLoadConfig(t *testing.T) {
 	}
 	if c.Root.Remote != "origin" {
 		t.Fatal("wrong root remote name")
-	}
-	if c.VersionTemp != "1.5.3" {
-		t.Fatal("wrong version")
 	}
 	if len(c.Actions) != 5 {
 		t.Fatal("wrong number of actions")

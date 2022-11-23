@@ -14,6 +14,8 @@ import (
 	"splitter/action"
 	"splitter/conf"
 	"splitter/pkg"
+	"splitter/version"
+	"splitter/version/semver"
 )
 
 var (
@@ -34,14 +36,30 @@ type SplitterConfig struct {
 
 func main() {
 	flag.Parse()
+
 	if *dryRun {
 		fmt.Println("!!! running dry !!!")
 	}
-	collection, err := loadCollection()
+
+	versionString := flag.Arg(0)
+	if versionString == "" {
+		fmt.Println("Usage: splitter <version>")
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
+
+	versionValue, err := semver.FromString(versionString)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	collection, err := loadCollection(versionValue)
 	if err != nil {
 		fmt.Printf("could not load collection: %s\n", err)
-		return
+		os.Exit(1)
 	}
+
 	if pipeline, err := action.NewPipeline(collection.Conf.Actions, *dryRun); err != nil {
 		fmt.Printf("could not create a pipeline: %s\n", err)
 		return
@@ -112,8 +130,8 @@ func loadAuth() (http.AuthMethod, error) {
 	}, nil
 }
 
-func loadCollection() (*pkg.PackageCollection, error) {
-	cnf, err := conf.LoadConfig(*config, loadAuth)
+func loadCollection(version version.Version) (*pkg.PackageCollection, error) {
+	cnf, err := conf.LoadConfig(*config, loadAuth, version)
 	if err != nil {
 		return nil, fmt.Errorf("error loading config: %s", err)
 	}
