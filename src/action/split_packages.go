@@ -41,7 +41,7 @@ func (s SplitPackages) Act(collection *pkg.PackageCollection) error {
 		}
 
 		// needs to be done via cmdline because of this https://github.com/go-git/go-git/issues/105
-		if err := os.Chdir(singlePkg.Path); err != nil {
+		if err = os.Chdir(singlePkg.Path); err != nil {
 			return fmt.Errorf("cannot change directory: %s", err)
 		}
 

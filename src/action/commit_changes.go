@@ -28,6 +28,7 @@ func (t CommitChanges) Act(collection *pkg.PackageCollection) error {
 		"commit",
 		"-m",
 		fmt.Sprintf("'prepare release %s'", collection.Conf.VersionValue.GitTag()),
+		"--no-verify",
 	)
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("error commiting changes: %+v", err)

@@ -1,4 +1,3 @@
-version: 1.5.3
 root:
   branch: master
   remote: origin

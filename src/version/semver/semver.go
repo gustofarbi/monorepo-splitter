@@ -16,13 +16,18 @@ const (
 var format = fmt.Sprintf("%%0%dd%%0%dd%%0%dd", width, width, width)
 
 type Semver struct {
-	major int
-	minor int
-	patch int
+	major  int
+	minor  int
+	patch  int
+	suffix string
 }
 
 func (s Semver) String() string {
-	return fmt.Sprintf("%d.%d.%d", s.major, s.minor, s.patch)
+	result := fmt.Sprintf("%d.%d.%d", s.major, s.minor, s.patch)
+	if s.suffix == "" {
+		return result
+	}
+	return result + "-" + s.suffix
 }
 
 func (s Semver) CaretedMinorVersion() string {
@@ -37,7 +42,9 @@ func (s Semver) IntVal() int {
 }
 
 func FromString(s string) (Semver, error) {
+	s, suffix, _ := strings.Cut(s, "-")
 	strList := strings.Split(s, ".")
+
 	if len(strList) != partCount {
 		return Semver{}, fmt.Errorf("invalid version string: %s", s)
 	}
@@ -53,9 +60,10 @@ func FromString(s string) (Semver, error) {
 	}
 
 	return Semver{
-		major: intList[0],
-		minor: intList[1],
-		patch: intList[2],
+		major:  intList[0],
+		minor:  intList[1],
+		patch:  intList[2],
+		suffix: suffix,
 	}, nil
 }
 

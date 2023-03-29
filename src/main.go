@@ -43,9 +43,7 @@ func main() {
 
 	versionString := flag.Arg(0)
 	if versionString == "" {
-		fmt.Println("Usage: splitter <version>")
-		flag.PrintDefaults()
-		os.Exit(1)
+		exitNoSuccess()
 	}
 
 	versionValue, err := semver.FromString(versionString)
@@ -53,6 +51,8 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
+	fmt.Println("using git tag: ", versionValue.String())
 
 	collection, err := loadCollection(versionValue)
 	if err != nil {
@@ -131,10 +131,11 @@ func loadAuth() (http.AuthMethod, error) {
 }
 
 func loadCollection(version version.Version) (*pkg.PackageCollection, error) {
-	cnf, err := conf.LoadConfig(*config, loadAuth, version)
+	cnf, err := conf.LoadConfigWithVersion(*config, loadAuth)
 	if err != nil {
 		return nil, fmt.Errorf("error loading config: %s", err)
 	}
+	cnf.VersionValue = version
 
 	collection, err := pkg.FromConfig(cnf)
 	if err != nil {
@@ -142,4 +143,10 @@ func loadCollection(version version.Version) (*pkg.PackageCollection, error) {
 	}
 
 	return collection, nil
+}
+
+func exitNoSuccess() {
+	fmt.Println("Usage: splitter <version>")
+	flag.PrintDefaults()
+	os.Exit(0)
 }

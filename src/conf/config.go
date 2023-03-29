@@ -6,7 +6,6 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"gopkg.in/yaml.v3"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -50,7 +49,7 @@ type Pkg struct {
 	Path   string `yaml:"path"`
 }
 
-func LoadConfig(name string, authFunc AuthFunc, version version.Version) (*Config, error) {
+func LoadConfigWithVersion(name string, authFunc AuthFunc) (*Config, error) {
 	if name != "" {
 		if strings.HasPrefix(name, "~") {
 			homeDir, err := os.UserHomeDir()
@@ -59,20 +58,20 @@ func LoadConfig(name string, authFunc AuthFunc, version version.Version) (*Confi
 			}
 			name = filepath.Join(homeDir, name[1:])
 		}
-		return loadConfig(name, authFunc, version)
+		return LoadConfig(name, authFunc)
 	}
 	for _, ext := range extensions {
 		filename := fmt.Sprintf("%s.%s", configName, ext)
 		if _, err := os.Stat(filename); os.IsNotExist(err) {
 			continue
 		}
-		return loadConfig(filename, authFunc, version)
+		return LoadConfig(filename, authFunc)
 	}
 	return nil, fmt.Errorf("no suitable conf file found")
 }
 
-func loadConfig(filename string, authFunc AuthFunc, version version.Version) (*Config, error) {
-	b, err := ioutil.ReadFile(filename)
+func LoadConfig(filename string, authFunc AuthFunc) (*Config, error) {
+	b, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +82,6 @@ func loadConfig(filename string, authFunc AuthFunc, version version.Version) (*C
 		return nil, err
 	}
 	c.PackageAuthFunc = authFunc
-	c.VersionValue = version
 	current, err := user.Current()
 	if err != nil {
 		return nil, err

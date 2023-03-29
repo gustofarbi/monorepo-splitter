@@ -8,7 +8,7 @@ import (
 
 func TestLoadConfig(t *testing.T) {
 	version := semver.Semver{}
-	c, err := LoadConfig(
+	c, err := LoadConfigWithVersion(
 		"config.yaml",
 		func() (http.AuthMethod, error) {
 			return &http.BasicAuth{}, nil
