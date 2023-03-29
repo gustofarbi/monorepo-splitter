@@ -2,18 +2,15 @@ package conf
 
 import (
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
-	"splitter/version/semver"
 	"testing"
 )
 
 func TestLoadConfig(t *testing.T) {
-	version := semver.Semver{}
 	c, err := LoadConfigWithVersion(
 		"config.yaml",
 		func() (http.AuthMethod, error) {
 			return &http.BasicAuth{}, nil
 		},
-		version,
 	)
 	if err != nil {
 		t.Fatalf("loading failed: %s", err)
