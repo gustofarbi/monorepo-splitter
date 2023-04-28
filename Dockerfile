@@ -1,9 +1,5 @@
 FROM golang:1.20.3
 
-WORKDIR /go/src/splitter
-
-COPY src/ .
-
 RUN apt-get -y update && apt-get install -y cmake libssl-dev
 
 RUN cd /tmp && \
@@ -15,6 +11,10 @@ RUN cd /tmp && \
     cmake --build . --target install && \
     cd /tmp && rm -rf libgit2* && \
     ldconfig /usr/local/lib
+
+WORKDIR /go/src/splitter
+
+COPY src/ .
 
 RUN go build -o /usr/local/bin/splitter
 

@@ -39,15 +39,15 @@ arguments="${arguments} ${version}"
 if [ -n "${errors}" ]; then err "${errors}" && exit 1; fi
 
 images=$(docker images splitter | wc -l)
-if [ $images -eq 1 ]; then
+if [ "$images" -eq 1 ]; then
   make build-docker
 fi
 
 docker run --rm \
   -v ~/.splitter/config:/root/.splitter/config \
   -v ~/.ssh/id_rsa:/root/.ssh/id_rsa \
-  -v $path:$path \
-  -v $config:/tmp/config \
+  -v "$path":"$path" \
+  -v "$config":/tmp/config \
   splitter:latest \
   -c /tmp/config \
   "$arguments"
