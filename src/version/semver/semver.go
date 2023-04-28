@@ -42,6 +42,7 @@ func (s Semver) IntVal() int {
 }
 
 func FromString(s string) (Semver, error) {
+	s = strings.TrimSpace(s)
 	s, suffix, _ := strings.Cut(s, "-")
 	strList := strings.Split(s, ".")
 

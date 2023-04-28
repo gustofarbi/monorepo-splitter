@@ -10,6 +10,7 @@ install-libgit2:
 	cd /tmp && \
 	curl -sL https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.0.tar.gz -o libgit2-1.3.0.tar.gz && \
 	tar xzf libgit2-1.3.0.tar.gz && \
+	mkdir -p libgit2-1.3.0/build && \
 	cd libgit2-1.3.0/build && \
 	cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/opt && \
 	sudo cmake --build . --target install && \
@@ -20,3 +21,6 @@ download:
 
 test:
 	cd src && GOOS=darwin GOARCH=amd64 PKG_CONFIG_PATH=/usr/local/opt/libgit2/lib/pkgconfig CGO_LDFLAGS="-Wl,-rpath,/usr/local/opt/libgit2/lib"  go test ./...
+
+build-docker:
+	docker build -t splitter .

@@ -146,7 +146,7 @@ func loadCollection(version version.Version) (*pkg.PackageCollection, error) {
 }
 
 func exitNoSuccess() {
-	fmt.Println("Usage: splitter <version>")
+	fmt.Println("Usage: splitter <flags> <version>")
 	flag.PrintDefaults()
 	os.Exit(0)
 }
