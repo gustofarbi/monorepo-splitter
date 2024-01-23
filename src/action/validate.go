@@ -65,6 +65,7 @@ func validateRootPackage(collection *pkg.PackageCollection) error {
 
 	if collection.Conf.Root.Branch != "" {
 		cmd = exec.Command("git", "checkout", collection.Conf.Root.Branch)
+		cmd.Stdout = os.Stdout
 		if err := cmd.Run(); err != nil {
 			return fmt.Errorf("cannot checkout root branch: %s: %s", collection.Conf.Root.Branch, err)
 		}

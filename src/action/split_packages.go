@@ -133,6 +133,7 @@ func pushAndTag(
 		"-f",
 	)
 	fmt.Println(cmd.String())
+	cmd.Stderr = os.Stdout
 	cmd.Stdout = os.Stdout
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("error pushing to remote %s: %s", singlePkg.RemoteName, err)

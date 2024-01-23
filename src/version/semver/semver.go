@@ -31,6 +31,9 @@ func (s Semver) String() string {
 }
 
 func (s Semver) CaretedMinorVersion() string {
+	if s.suffix != "" {
+		return s.String()
+	}
 	return fmt.Sprintf("^%d.%d", s.major, s.minor)
 }
 func (s Semver) GitTag() string {
